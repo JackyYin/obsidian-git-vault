@@ -41,30 +41,38 @@ Before drawing anything, the function reads the current state of the PPU's I/O r
 │  EN  │  MAP │  EN  │ DATA │  MAP │ SIZE │  EN  │  WIN │
 │ bit7 │ bit6 │ bit5 │ bit4 │ bit3 │ bit2 │ bit1 │  EN  │
 └──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
-   │       │      │      │      │      │      │
-   │       │      │      │      │      │      └─ BG/WIN enable (not used here)
-   │       │      │      │      │      └──────── OBJ enable
-   │       │      │      │      └─────────────── OBJ size: 0=8×8, 1=8×16
-   │       │      │      └────────────────────── BG tile map: 0=0x9800, 1=0x9C00
-   │       │      └───────────────────────────── Tile data: 0=0x9000 signed, 1=0x8000 unsigned
-   │       └──────────────────────────────────── Window tile map: 0=0x9800, 1=0x9C00
-   └──────────────────────────────────────────── LCD enable (if 0, return immediately)
+   │       │      │      │      │      │      │      │
+   │       │      │      │      │      │      │      └─ BG/WIN enable (DMG)
+   │       │      │      │      │      │      └──────── OBJ enable
+   │       │      │      │      │      └─────────────── OBJ size: 0=8×8, 1=8×16
+   │       │      │      │      └────────────────────── BG tile map: 0=0x9800, 1=0x9C00
+   │       │      │      └───────────────────────────── Tile data: 0=0x9000 signed, 1=0x8000 unsigned
+   │       │      └──────────────────────────────────── Window enable
+   │       └─────────────────────────────────────────── Window tile map: 0=0x9800, 1=0x9C00
+   └─────────────────────────────────────────────────── LCD enable (if 0, return immediately)
 ```
 
 ---
 
 ## Step 2: Background & Window — Pixel Loop (x = 0..159)
 
-For each of the 160 horizontal pixels, the function decides whether to draw from the **Window** layer or the **Background** layer.
+For each of the 160 horizontal pixels, the function first checks `bg_enabled` (LCDC bit 0), then decides whether to draw from the **Window** or **Background** layer.
 
 ```
 For each pixel X in [0, 159]:
 
-  Is window enabled AND line >= WY AND x >= (WX-1)?
+  BG/WIN enabled? (LCDC bit 0)
+         │
+    NO  ─┴─► color_idx = 0  (BG is white; sprites still draw over it)
+         │
+    YES  ▼
+  Is window enabled AND line >= WY AND x >= (WX-7)?
          │
     YES ─┴─► Draw from WINDOW layer
     NO  ────► Draw from BACKGROUND layer
 ```
+
+> **BG/WIN Enable (LCDC bit 0):** On DMG, when this bit is 0, the background and window are disabled. All BG/window pixels are forced to color index 0 (which maps to white through BGP). Sprites are unaffected and still render normally. Because `bg_priority[x]` is 0 for all pixels, sprites with the priority flag set also appear over the "blank" background.
 
 ### The Tile Map and Tile Data System
 
@@ -124,16 +132,22 @@ row31 │ 00 │ 01 │ 02 │ 03 │  ...   │ FF │
 
 ### Tile Data: Unsigned vs Signed Addressing
 
-Two addressing modes exist depending on LCDC bit 4:
+> Reference: [Pan Docs — Tile Data](https://gbdev.io/pandocs/Tile_Data.html)
+
+Two addressing modes exist depending on LCDC bit 4. **Objects always use `$8000` (unsigned) addressing** regardless of this bit.
 
 ```
 LCDC bit 4 = 1 (unsigned / "8000 mode"):
   tile_data_addr = 0x8000 + tile_num * 16
   tile_num is treated as uint8_t (0–255)
+  Tiles 0–127 → block 0 (0x8000–0x87FF)
+  Tiles 128–255 → block 1 (0x8800–0x8FFF)
 
 LCDC bit 4 = 0 (signed / "8800 mode"):
   tile_data_addr = 0x9000 + (int8_t)tile_num * 16
-  tile_num is treated as int8_t (-128..127, where 0=block at 0x9000)
+  tile_num is treated as int8_t (-128..127, where 0 = block at 0x9000)
+  Tiles 0–127 → block 2 (0x9000–0x97FF)
+  Tiles -128–-1 (i.e. 128–255 unsigned) → block 1 (0x8800–0x8FFF)
 
 Tile Data Memory Layout (8000 mode):
 0x8000 ┌────────────────┐ tile 0   (16 bytes per tile)
@@ -151,20 +165,20 @@ Tile Data Memory Layout (8000 mode):
 
 ### Tile Row Decoding: 2bpp Format
 
-Each tile row is stored as **2 bytes** (2 bits per pixel = 4 possible colors).
+Each tile row is stored as **2 bytes** (2 bits per pixel = 4 possible colors). Pixel color is extracted by `get_tile_pixel(lsb_byte, msb_byte, x)`:
 
 ```
 Tile row at line_in_tile = wrapped_y % 8:
 
-  byte1 = VRAM[tile_data_addr + line_in_tile * 2]
-  byte2 = VRAM[tile_data_addr + line_in_tile * 2 + 1]
+  byte1 = VRAM[tile_data_addr + line_in_tile * 2]      ← low bit plane
+  byte2 = VRAM[tile_data_addr + line_in_tile * 2 + 1]  ← high bit plane
 
-  bit_x = 7 - (wrapped_x % 8)   ← MSB is leftmost pixel
+  For pixel at column x within the tile (0..7):
+    bit1 = (byte1 >> (7 - x)) & 1   ← low bit of color index
+    bit2 = (byte2 >> (7 - x)) & 1   ← high bit of color index
 
-  bit1 = (byte1 >> bit_x) & 1   ← low bit of color index
-  bit2 = (byte2 >> bit_x) & 1   ← high bit of color index
-
-  color_idx = (bit2 << 1) | bit1   → value in {0, 1, 2, 3}
+  color_idx = bit1 | (bit2 << 1)    → value in {0, 1, 2, 3}
+              (MSB of each byte = leftmost pixel)
 ```
 
 **Visual example** — decoding all 8 pixels of a tile row:
@@ -212,11 +226,13 @@ Example: BGP = 0xE4 = 0b11100100
 
 ### Window Layer
 
-The Window is an alternative tile layer rendered on top of the BG. It uses its own tile map and its own local coordinate system:
+> Reference: [Pan Docs — WY/WX Registers](https://gbdev.io/pandocs/Scrolling.html#ff4aff4b--wy-wx-window-y-position-x-position-plus-7)
+
+The Window is an alternative tile layer rendered on top of the BG. It uses its own tile map and its own local coordinate system. WX is stored as **screen X + 7**, so the actual screen X where the window starts is `WX - 7`.
 
 ```
 Screen space:
-  win_x = x - (WX - 1)      ← WX=7 means window starts at screen x=0
+  win_x = x - (WX - 7)      ← WX=7 means window starts at screen x=0
   win_y = line - WY          ← WY=0 means window starts at screen y=0
 
 Window tile map starts at:
@@ -224,6 +240,7 @@ Window tile map starts at:
   0x9C00 (LCDC bit 6 = 1)
 
 The window does NOT scroll — it is always anchored to its WX/WY position.
+Visible range: WX = 0..166, WY = 0..143. WX values 0 and 166 are unreliable on hardware.
 ```
 
 ```
@@ -237,7 +254,7 @@ Screen (160×144)
 │▓▓▓▓▓▓▓▓▓▓▓▓└──────────────────────────┘▓▓│
 └──────────────────────────────────────────┘
              ▲
-             WX-1 (screen x where window starts)
+             WX-7 (screen x where window starts)
 
   ▓ = Background layer
   ░ = Window layer (covers BG underneath)
@@ -247,11 +264,13 @@ Screen (160×144)
 
 ## Step 3: Sprite Rendering
 
+> Reference: [Pan Docs — OAM](https://gbdev.io/pandocs/OAM.html)
+
 After the background/window pass, sprites (OBJs) are rendered on top.
 
 ### OAM Scan: Which Sprites Hit This Line?
 
-There are 40 entries in OAM. Each is 4 bytes:
+There are 40 entries in OAM (`$FE00`–`$FE9F`). Each is 4 bytes:
 
 ```
 OAM Entry (4 bytes at 0xFE00 + i*4):
@@ -267,10 +286,20 @@ Flags byte:
   Bit 4: Palette (0=OBP0, 1=OBP1)
 ```
 
+The Y and X offsets exist so sprites can slide smoothly onto the screen from any edge:
+- Y is offset by **16**: a 16-px tall sprite (8×16 mode) at `sprite_y = 0` is fully above the screen. `sprite_y = 16` places the top row at screen Y=0.
+- X is offset by **8**: `sprite_x = 8` places the left column at screen X=0.
+
+Coordinate conversion is done via macros:
+```c
+#define OAM_SPRITE_Y_TO_ACTUAL_Y(y)  ((int)(y) - 16)
+#define OAM_SPRITE_X_TO_ACTUAL_X(x)  ((int)(x) - 8)
+```
+
 A sprite hits scanline `line` if:
 
 ```
-actual_y = sprite_y - 16
+actual_y = OAM_SPRITE_Y_TO_ACTUAL_Y(sprite_y)
 sprite_h = 8 (8×8 mode) or 16 (8×16 mode)
 
 line >= actual_y  AND  line < actual_y + sprite_h
@@ -282,21 +311,25 @@ line >= actual_y  AND  line < actual_y + sprite_h
 actual_y+h-1 ─►   └────────┘
 ```
 
-Up to **10 sprites per scanline** are collected (hardware limit), then sorted by X position (lower X = higher priority; ties broken by OAM index).
+Sprites with `sprite_x == 0` or `sprite_x >= 168` are fully off-screen and skipped. Up to **10 sprites per scanline** are collected (hardware limit), then sorted by X position (lower X = higher priority; ties broken by OAM index).
 
 ### 8×16 Sprite Mode
 
 ```
 8×16 sprites use two consecutive tiles. The tile number's LSB is forced to 0:
-  tile_num &= 0xFE   → top tile = tile N, bottom tile = tile N+1
+  tile_num &= 0xFE   → top tile = tile N (even), bottom tile = tile N+1 (odd)
 
-  ┌────────┐  ← tile N   (top 8 rows)
+  ┌────────┐  ← tile N   (top 8 rows,    pixel_y 0..7)
   │        │
   │        │
-  ├────────┤  ← tile N+1 (bottom 8 rows)
+  ├────────┤  ← tile N+1 (bottom 8 rows, pixel_y 8..15)
   │        │
   │        │
   └────────┘
+
+pixel_y (0..15) indexes continuously across both tiles via:
+  tile_data_addr = 0x8000 + tile_num * 16
+  byte1 = VRAM[tile_data_addr + pixel_y * 2]
 ```
 
 ### Sprite Pixel Decoding with Flipping
@@ -310,12 +343,11 @@ if Y-flip: pixel_y = sprite_h - 1 - pixel_y
 
 tile_data_addr = 0x8000 + tile_num * 16   (sprites always use 0x8000 mode)
 
-byte1 = VRAM[tile_data_addr + pixel_y * 2]
-byte2 = VRAM[tile_data_addr + pixel_y * 2 + 1]
-
-bit1 = (byte1 >> (7 - pixel_x)) & 1
-bit2 = (byte2 >> (7 - pixel_x)) & 1
-color_idx = (bit2 << 1) | bit1
+color_idx = get_tile_pixel(
+    VRAM[tile_data_addr + pixel_y * 2],
+    VRAM[tile_data_addr + pixel_y * 2 + 1],
+    pixel_x
+)
 ```
 
 ```
@@ -334,10 +366,8 @@ Y-flip example (8×8):
   │0 1 2 3│              │3 2 1 0│              │4 5 6 7│
   │4 5 6 7│              │7 6 5 4│              │0 1 2 3│
   └───────┘              └───────┘              └───────┘
-   pixel_x values         pixel_x values         pixel_x values
-   (after flip calc)      (after flip calc)      (after flip calc)
+   pixel_x values         pixel_x values         pixel_y values
 ```
-
 
 ### Sprite Transparency and Priority
 
@@ -348,8 +378,10 @@ priority bit set (flag bit 7):
   sprite is behind BG colors 1, 2, 3
   only drawn if the BG pixel at this X was color 0
 
-  if (priority && bg_color_at_x != 0) → skip sprite pixel
+  if (priority && bg_priority[x] != 0) → skip sprite pixel
 ```
+
+The priority check uses `bg_priority[x]`, which stores the raw BG `color_idx` (before palette mapping) for each pixel on the current scanline. When BG is disabled (LCDC bit 0 = 0), all `bg_priority` values are 0, so priority sprites always appear.
 
 ### Sprite Drawing Order
 
@@ -360,9 +392,10 @@ x = 159 ──► x = 0
   For each x:
     For each sprite (sorted by X, low→high):
       Is x within this sprite's 8px width?
-        Decode pixel
-        If transparent → next sprite
-        If priority and BG != 0 → next sprite
+        Check priority flag against bg_priority[x]
+        If priority conflict → next sprite
+        Decode pixel via get_tile_pixel()
+        If transparent (color_idx == 0) → next sprite
         Write pixel → break (this sprite wins)
 ```
 
@@ -377,7 +410,7 @@ mmu->framebuffer[line * SCREEN_W + x] = gb_colors[pal_idx];
 ```
 
 ```
-Framebuffer layout (160 × 144 uint32_t RGBA values):
+Framebuffer layout (160 × 144 uint32_t ARGB values):
 
 index = line * 160 + x
 
@@ -409,21 +442,23 @@ ppu_render_scanline(line Y)
   ┌─────────────────────────────────────────┐
   │  FOR x = 0 to 159:                      │
   │                                         │
-  │   Window active at (x, Y)?              │
-  │    YES → win coords → tile map lookup   │
-  │    NO  → scroll BG coords → tile map    │
+  │   BG/WIN enabled? (LCDC bit 0)          │
+  │    NO  → color_idx = 0                  │
+  │    YES → Window active at (x, Y)?       │
+  │           YES → win coords → tile map   │
+  │           NO  → scroll BG → tile map    │
   │                    │                    │
   │            tile_num from VRAM           │
   │                    │                    │
   │          tile data address              │
   │       (unsigned 0x8000 or signed 0x9000)│
   │                    │                    │
-  │      row bytes: byte1, byte2            │
-  │                    │                    │
-  │      2bpp decode → color_idx (0–3)      │
+  │      get_tile_pixel(byte1, byte2, x)    │
+  │        → color_idx (0–3)                │
   │                    │                    │
   │      BGP palette → pal_idx (0–3)        │
   │                    │                    │
+  │      bg_priority[x] = color_idx         │
   │      gb_colors[pal_idx] → framebuffer   │
   └─────────────────────────────────────────┘
          │
@@ -431,18 +466,19 @@ ppu_render_scanline(line Y)
          │
          ▼
   Scan OAM: collect up to 10 sprites on line Y
+  (skip if sprite_x == 0 or sprite_x >= 168)
          │
          ▼
-  Sort sprites by X (then OAM index)
+  Sort sprites by X (then OAM index for ties)
          │
          ▼
   ┌─────────────────────────────────────────┐
   │  FOR x = 159 downto 0:                  │
-  │    FOR each sprite:                     │
-  │      x within sprite width?             │
-  │        Decode pixel (with flip)         │
+  │    FOR each sprite (sorted low X first):│
+  │      x within sprite's 8px width?       │
+  │        Priority conflict? → next sprite  │
+  │        get_tile_pixel() → color_idx     │
   │        Transparent? → next sprite       │
-  │        BG priority conflict? → next     │
   │        Write to framebuffer → BREAK     │
   └─────────────────────────────────────────┘
          │
