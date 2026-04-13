@@ -245,34 +245,7 @@ Screen (160×144)
 
 ---
 
-## Step 3: Framebuffer Write
-
-After computing the palette index, the pixel is written to the framebuffer:
-
-```c
-mmu->framebuffer[line * SCREEN_W + x] = gb_colors[pal_idx];
-```
-
-```
-Framebuffer layout (160 × 144 uint32_t RGBA values):
-
-index = line * 160 + x
-
-  x=0    x=1   x=2      ...      x=159
-┌──────┬──────┬──────┬──────────┬──────┐
-│ [0]  │ [1]  │ [2]  │  ...     │[159] │  ← line 0
-├──────┼──────┼──────┼──────────┼──────┤
-│[160] │[161] │[162] │  ...     │[319] │  ← line 1
-├──────┼──────┼──────┼──────────┼──────┤
-│ ...  │      │      │          │      │
-├──────┼──────┼──────┼──────────┼──────┤
-│[143*160]                      │[last]│  ← line 143
-└──────┴──────┴──────┴──────────┴──────┘
-```
-
----
-
-## Step 4: Sprite Rendering
+## Step 3: Sprite Rendering
 
 After the background/window pass, sprites (OBJs) are rendered on top.
 
@@ -391,6 +364,33 @@ x = 159 ──► x = 0
         If transparent → next sprite
         If priority and BG != 0 → next sprite
         Write pixel → break (this sprite wins)
+```
+
+---
+
+## Step 4: Framebuffer Write
+
+After computing the palette index, the pixel is written to the framebuffer:
+
+```c
+mmu->framebuffer[line * SCREEN_W + x] = gb_colors[pal_idx];
+```
+
+```
+Framebuffer layout (160 × 144 uint32_t RGBA values):
+
+index = line * 160 + x
+
+  x=0    x=1   x=2      ...      x=159
+┌──────┬──────┬──────┬──────────┬──────┐
+│ [0]  │ [1]  │ [2]  │  ...     │[159] │  ← line 0
+├──────┼──────┼──────┼──────────┼──────┤
+│[160] │[161] │[162] │  ...     │[319] │  ← line 1
+├──────┼──────┼──────┼──────────┼──────┤
+│ ...  │      │      │          │      │
+├──────┼──────┼──────┼──────────┼──────┤
+│[143*160]                      │[last]│  ← line 143
+└──────┴──────┴──────┴──────────┴──────┘
 ```
 
 ---
