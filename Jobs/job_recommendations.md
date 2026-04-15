@@ -1,5 +1,5 @@
 ---
-created: '2026-04-13'
+created: 2026-04-13
 tags:
   - career
   - job-search
@@ -46,13 +46,13 @@ sources:
 
 ## Salary Reference Data (Levels.fyi Taiwan, April 2026)
 
-| Metric | Value (NT$/month) |
-|--------|------------------|
-| Software Engineer — median | NT$128,253 |
-| Embedded Systems SE — median | NT$195,883 |
-| Systems Engineer — median | NT$168,292 |
-| HPC Engineer — median | NT$171,899 |
-| Networking Engineer — median | NT$166,038 |
+| Metric                       | Value (NT$/month) |
+| ---------------------------- | ----------------- |
+| Software Engineer — median   | NT$128,253        |
+| Embedded Systems SE — median | NT$195,883        |
+| Systems Engineer — median    | NT$168,292        |
+| HPC Engineer — median        | NT$171,899        |
+| Networking Engineer — median | NT$166,038        |
 
 ### Top-Paying Companies in Taiwan
 | Rank | Company | Median (NT$/mo) |
@@ -106,13 +106,13 @@ Scored based on:
 
 ### 104.com.tw Jobs
 
-| # | Title | Company | Location | Median Salary (NT$/mo) | Affinity | Rank | Link |
-|---|-------|---------|----------|----------------------|----------|------|------|
-| 10 | Linux Kernel Security Engineer | 系微股份有限公司 (ASPEED) | Taipei / Taichung | ~NT$120,000 | 9/10 | 7.5/10 | [JD](https://www.104.com.tw/job/8y6fl) |
-| 11 | Linux Kernel Engineer (RISC-V) | (see JD) | Hsinchu | ~NT$110,000 | 7.5/10 | 6.5/10 | [JD](https://www.104.com.tw/job/6nqa4) |
-| 12 | Linux 核心與系統架構工程師 | (Robotics Co., Neihu) | Taipei | ~NT$115,000 | 7.5/10 | 6.5/10 | [JD](https://www.104.com.tw/job/8y89f) |
-| 13 | ARM Linux BSP Engineer | (Industrial SBC Co., Nangang) | Taipei | ~NT$105,000 | 7/10 | 6/10 | [JD](https://www.104.com.tw/job/8sfjx) |
-| 14 | C++ System Software Engineer | VICI Holdings | Hsinchu | ~NT$170,000 | 7/10 | 7/10 | [JD](https://www.104.com.tw/job/90863) |
+| #   | Title                          | Company                       | Location          | Median Salary (NT$/mo) | Affinity | Rank   | Link                                   |
+| --- | ------------------------------ | ----------------------------- | ----------------- | ---------------------- | -------- | ------ | -------------------------------------- |
+| 10  | Linux Kernel Security Engineer | 系微股份有限公司 (ASPEED)             | Taipei / Taichung | ~NT$120,000            | 9/10     | 7.5/10 | [JD](https://www.104.com.tw/job/8y6fl) |
+| 11  | Linux Kernel Engineer (RISC-V) | (see JD)                      | Hsinchu           | ~NT$110,000            | 7.5/10   | 6.5/10 | [JD](https://www.104.com.tw/job/6nqa4) |
+| 12  | Linux 核心與系統架構工程師               | (Robotics Co., Neihu)         | Taipei            | ~NT$115,000            | 7.5/10   | 6.5/10 | [JD](https://www.104.com.tw/job/8y89f) |
+| 13  | ARM Linux BSP Engineer         | (Industrial SBC Co., Nangang) | Taipei            | ~NT$105,000            | 7/10     | 6/10   | [JD](https://www.104.com.tw/job/8sfjx) |
+| 14  | C++ System Software Engineer   | VICI Holdings                 | Hsinchu           | ~NT$170,000            | 7/10     | 7/10   | [JD](https://www.104.com.tw/job/90863) |
 
 ---
 
@@ -268,13 +268,13 @@ HFT firms typically pay very competitively — estimated NT$150–200K/mo. Inter
 
 ## Priority Shortlist (Recommended Application Order)
 
-| Priority | Job | Reason |
-|----------|-----|--------|
-| 🥇 1st | Google System SE (Taipei) | Highest pay + prestige, strong technical fit |
-| 🥇 1st | Canonical Linux Kernel Engineer (Taipei/Hsinchu) | Perfect technical fit, great kernel culture |
-| 🥈 2nd | Qualcomm Linux Boot SE (Taipei) | Near-FAANG pay, semiconductor ecosystem |
-| 🥈 2nd | 系微 Linux Kernel Security Engineer (Taipei/Taichung) | Best domain alignment from 104, great kernel security fit |
-| 🥈 2nd | Ubiquiti Senior Security Engineer (Taipei) | Strong C++/security engine match, solid company |
-| 🥉 3rd | MediaTek Embedded Linux SE (Taipei) | Good pay, well-known company, adjacent domain |
-| 🥉 3rd | VICI Holdings C++ System SE (Hsinchu) | High pay for HFT, eBPF is a bonus |
-| 🥉 3rd | Lead SW Engineer / Morgan Philips (Taipei) | Lead role upside, but peripheral driver gap |
+| Priority | Job                                                 | Reason                                                    |
+| -------- | --------------------------------------------------- | --------------------------------------------------------- |
+| 🥇 1st   | Google System SE (Taipei)                           | Highest pay + prestige, strong technical fit              |
+| 🥇 1st   | Canonical Linux Kernel Engineer (Taipei/Hsinchu)    | Perfect technical fit, great kernel culture               |
+| 🥈 2nd   | Qualcomm Linux Boot SE (Taipei)                     | Near-FAANG pay, semiconductor ecosystem                   |
+| 🥈 2nd   | 系微 Linux Kernel Security Engineer (Taipei/Taichung) | Best domain alignment from 104, great kernel security fit |
+| 🥈 2nd   | Ubiquiti Senior Security Engineer (Taipei)          | Strong C++/security engine match, solid company           |
+| 🥉 3rd   | MediaTek Embedded Linux SE (Taipei)                 | Good pay, well-known company, adjacent domain             |
+| 🥉 3rd   | VICI Holdings C++ System SE (Hsinchu)               | High pay for HFT, eBPF is a bonus                         |
+| 🥉 3rd   | Lead SW Engineer / Morgan Philips (Taipei)          | Lead role upside, but peripheral driver gap               |
