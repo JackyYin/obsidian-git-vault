@@ -2,7 +2,11 @@
 tags:
   - C
 ---
-1. Master the concept of const:
+1. What does the keyword volatile mean? Give three different examples of its use.
+
+2. What are the uses of the keyword static?
+
+3. What does the keyword const mean?
 
 ```C
 int main() {
@@ -28,7 +32,7 @@ int main() {
 ```
 
 
-2. Master data declaration:
+3. Master data declaration:
 ```C
 (a) int a; // An integer
 

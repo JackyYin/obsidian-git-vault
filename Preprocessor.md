@@ -22,3 +22,7 @@ int main() {
     return 0;
 }
 ```
+
+
+Refs:
+- [jserv](https://hackmd.io/@sysprog/c-preprocessor)
