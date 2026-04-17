@@ -45,3 +45,20 @@ static void clear(void) { x &= ~BITS_3; }
 
 static void toggle(void) { x ^= BITS_3; }
 ```
+
+6. What's the meaning of `X & (-X)` ?
+```
+  101100
+& 010100
+---------
+  000100
+```
+
+
+LeetCode:
+- single number i
+- single number ii
+- [single number iii](https://leetcode.com/problems/single-number-iii/)
+
+Refs:
+- [jserv](https://hackmd.io/@sysprog/c-bitwise)

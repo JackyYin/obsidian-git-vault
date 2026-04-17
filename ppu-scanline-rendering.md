@@ -329,7 +329,6 @@ Sprites with `sprite_x == 0` or `sprite_x >= 168` are fully off-screen and skipp
 
 pixel_y (0..15) indexes continuously across both tiles via:
   tile_data_addr = 0x8000 + tile_num * 16
-  byte1 = VRAM[tile_data_addr + pixel_y * 2]
 ```
 
 ### Sprite Pixel Decoding with Flipping
@@ -350,23 +349,105 @@ color_idx = get_tile_pixel(
 )
 ```
 
-```
-X-flip example:
-  Normal:    pixel_x  0  1  2  3  4  5  6  7
-  X-flipped:          7  6  5  4  3  2  1  0
 
-Y-flip example (8×8):
-  Normal:    pixel_y  0  1  2  3  4  5  6  7
-  Y-flipped:          7  6  5  4  3  2  1  0
-```
 
 ```
-  Normal:                X Flipped:              Y Flipped:
-  ┌───────┐              ┌───────┐              ┌───────┐
-  │0 1 2 3│              │3 2 1 0│              │4 5 6 7│
-  │4 5 6 7│              │7 6 5 4│              │0 1 2 3│
-  └───────┘              └───────┘              └───────┘
-   pixel_x values         pixel_x values         pixel_y values
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     SPRITE FLIP — 8×8 TILE PIXEL MAP                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+    Pixel key:  ■ = color 1 (set)    · = color 0 (clear)
+
+    ┌─────────────────────────────────┐
+    │          ORIGINAL               │   Bit values
+    │    col: 0 1 2 3 4 5 6 7         │
+    │                                 │
+    │ row 0:  ■ ■ ■ ■ · · · ·         │   1 1 1 1 0 0 0 0
+    │ row 1:  ■ · · · · · · ·         │   1 0 0 0 0 0 0 0
+    │ row 2:  ■ ■ ■ · · · · ·         │   1 1 1 0 0 0 0 0
+    │ row 3:  ■ · · · · · · ·         │   1 0 0 0 0 0 0 0
+    │ row 4:  · · · · · · · ·         │   0 0 0 0 0 0 0 0
+    │ row 5:  · · · · · · · ·         │   0 0 0 0 0 0 0 0
+    │ row 6:  · · · · · · · ·         │   0 0 0 0 0 0 0 0
+    │ row 7:  · · · · · · · ·         │   0 0 0 0 0 0 0 0
+    └─────────────────────────────────┘
+
+
+    ┌────────────────────────────────────────────────────────────────┐
+    │   X-FLIP  (horizontal mirror — reverse bits within each row)   │
+    └────────────────────────────────────────────────────────────────┘
+
+    BEFORE                             AFTER
+       col: 0 1 2 3 4 5 6 7             col: 0 1 2 3 4 5 6 7
+                            ─────►
+    row 0:  ■ ■ ■ ■ · · · ·          row 0:  · · · · ■ ■ ■ ■
+    row 1:  ■ · · · · · · ·          row 1:  · · · · · · · ■
+    row 2:  ■ ■ ■ · · · · ·          row 2:  · · · · · ■ ■ ■
+    row 3:  ■ · · · · · · ·          row 3:  · · · · · · · ■
+    row 4:  · · · · · · · ·          row 4:  · · · · · · · ·
+    row 5:  · · · · · · · ·          row 5:  · · · · · · · ·
+    row 6:  · · · · · · · ·          row 6:  · · · · · · · ·
+    row 7:  · · · · · · · ·          row 7:  · · · · · · · ·
+
+    Bit level, row 0:
+    Before:  [1][1][1][1][0][0][0][0]    MSB──────────────────LSB
+    After:   [0][0][0][0][1][1][1][1]    (each row's bits reversed)
+              │  │  │  │  │  │  │  │
+              └──┼──┼──┼──┼──┼──┼──┴── col 0 ↔ col 7
+                 └──┼──┼──┼──┼──┴───── col 1 ↔ col 6
+                    └──┼──┼──┴──────── col 2 ↔ col 5
+                       └──┴─────────── col 3 ↔ col 4
+
+    Bit level, row 2:
+    Before:  [1][1][1][0][0][0][0][0]
+    After:   [0][0][0][0][0][1][1][1]
+
+
+    ┌────────────────────────────────────────────────────────────────┐
+    │   Y-FLIP  (vertical mirror — reverse order of rows)            │
+    └────────────────────────────────────────────────────────────────┘
+
+    BEFORE                             AFTER
+       col: 0 1 2 3 4 5 6 7             col: 0 1 2 3 4 5 6 7
+                            ─────►
+    row 0:  ■ ■ ■ ■ · · · ·          row 0:  · · · · · · · ·    
+    row 1:  ■ · · · · · · ·          row 1:  · · · · · · · ·    
+    row 2:  ■ ■ ■ · · · · ·          row 2:  · · · · · · · ·    
+    row 3:  ■ · · · · · · ·          row 3:  · · · · · · · ·    
+    row 4:  · · · · · · · ·          row 4:  ■ · · · · · · ·    
+    row 5:  · · · · · · · ·          row 5:  ■ ■ ■ · · · · ·    
+    row 6:  · · · · · · · ·          row 6:  ■ · · · · · · ·    
+    row 7:  · · · · · · · ·          row 7:  ■ ■ ■ ■ · · · ·    
+
+
+    Row level:
+    Before:  row[0]  row[1]  row[2]  row[3]  row[4]  row[5]  row[6]  row[7]
+                                      ↕ swap
+    After:   row[7]  row[6]  row[5]  row[4]  row[3]  row[2]  row[1]  row[0]
+
+    Bits are UNCHANGED within each row — only row order is reversed:
+    row 0 → row 7:  [1][1][1][1][0][0][0][0]  (same bits, just moved down)
+    row 2 → row 5:  [1][1][1][0][0][0][0][0]  (same bits, just moved down)
+
+
+    ┌────────────────────────────────────────────────────────────────┐
+    │   X-FLIP + Y-FLIP  (180° rotation — both applied together)     │
+    └────────────────────────────────────────────────────────────────┘
+
+    BEFORE                             AFTER
+       col: 0 1 2 3 4 5 6 7             col: 0 1 2 3 4 5 6 7
+
+    row 0:  ■ ■ ■ ■ · · · ·          row 0:  · · · · · · · ·
+    row 1:  ■ · · · · · · ·          row 1:  · · · · · · · ·
+    row 2:  ■ ■ ■ · · · · ·          row 2:  · · · · · · · ·
+    row 3:  ■ · · · · · · ·          row 3:  · · · · · · · ·
+    row 4:  · · · · · · · ·          row 4:  · · · · · · · ■
+    row 5:  · · · · · · · ·          row 5:  · · · · · ■ ■ ■
+    row 6:  · · · · · · · ·          row 6:  · · · · · · · ■
+    row 7:  · · · · · · · ·          row 7:  · · · · ■ ■ ■ ■
+
+    Every bit is reflected across both axes:
+    pixel[row][col]  →  pixel[7-row][7-col]
 ```
 
 ### Sprite Transparency and Priority
