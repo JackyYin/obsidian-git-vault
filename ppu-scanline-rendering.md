@@ -1,3 +1,9 @@
+---
+tags:
+  - gameboy
+  - C
+---
+
 # Scanline Rendering in `ppu_render_scanline()`
 
 ## Overview
