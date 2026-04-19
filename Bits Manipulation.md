@@ -54,8 +54,17 @@ static void toggle(void) { x ^= BITS_3; }
   000100
 ```
 
+7. What's the meaning of `X & (X-1)` ?
+```
+  101100
+& 101011
+---------
+  101000
+```
+
 
 LeetCode:
+- [number of 1 bits](https://leetcode.com/problems/number-of-1-bits/)
 - single number i
 - single number ii
 - [single number iii](https://leetcode.com/problems/single-number-iii/)

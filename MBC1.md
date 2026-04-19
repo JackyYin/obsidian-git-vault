@@ -59,15 +59,15 @@ Before the registers, understand what you parse out of the ROM header at load ti
 
 ### ROM size codes
 
-| Code | ROM size | Banks |
-|------|----------|-------|
-| `0x00` | 32 KB | 2 |
-| `0x01` | 64 KB | 4 |
-| `0x02` | 128 KB | 8 |
-| `0x03` | 256 KB | 16 |
-| `0x04` | 512 KB | 32 |
-| `0x05` | 1 MB | 64 |
-| `0x06` | 2 MB | 128 |
+| Code   | ROM size | Banks |
+| ------ | -------- | ----- |
+| `0x00` | 32 KB    | 2     |
+| `0x01` | 64 KB    | 4     |
+| `0x02` | 128 KB   | 8     |
+| `0x03` | 256 KB   | 16    |
+| `0x04` | 512 KB   | 32    |
+| `0x05` | 1 MB     | 64    |
+| `0x06` | 2 MB     | 128   |
 
 > **Pitfall — `rom_nr_bits` is a code, not a count.**
 > `rom[0x148]` stores the code (0–6), not the number of banks. The number of

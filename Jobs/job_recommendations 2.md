@@ -109,6 +109,8 @@ generated: '2026-04-14'
 
 **Why it fits:** SiFive is the leading RISC-V company. This role covers Linux kernel, OpenSBI, device drivers, and upstreaming — very similar to what the candidate does. Cross-architecture porting experience (PowerPC, s390x) makes RISC-V ramp-up fast. Rank boosted by US company culture, partially remote, and RISC-V ecosystem exposure.
 
+- https://sifive.wd1.myworkdayjobs.com/en-US/sifivecareers/details/Senior-System-Software-Engineer_R-101033?locationCountry=a4e08b475d6a4176853c9d1cb9854e02
+
 ---
 
 ### 6. Sr. Embedded Systems Security Engineer — MediaTek (Hsinchu)
