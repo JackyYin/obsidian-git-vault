@@ -51,11 +51,11 @@ updates its internal state.
 
 Before the registers, understand what you parse out of the ROM header at load time.
 
-| Offset | Field | Used for |
-|--------|-------|----------|
+| Offset  | Field          | Used for                                                    |
+| ------- | -------------- | ----------------------------------------------------------- |
 | `0x147` | Cartridge type | `0x01` = MBC1, `0x02` = MBC1+RAM, `0x03` = MBC1+RAM+BATTERY |
-| `0x148` | ROM size code | Number of ROM banks (see table below) |
-| `0x149` | RAM size code | Amount of external RAM (see table below) |
+| `0x148` | ROM size code  | Number of ROM banks (see table below)                       |
+| `0x149` | RAM size code  | Amount of external RAM (see table below)                    |
 
 ### ROM size codes
 
@@ -68,6 +68,7 @@ Before the registers, understand what you parse out of the ROM header at load ti
 | `0x04` | 512 KB   | 32    |
 | `0x05` | 1 MB     | 64    |
 | `0x06` | 2 MB     | 128   |
+
 
 > **Pitfall — `rom_nr_bits` is a code, not a count.**
 > `rom[0x148]` stores the code (0–6), not the number of banks. The number of
