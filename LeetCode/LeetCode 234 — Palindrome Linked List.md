@@ -5,7 +5,7 @@ tags:
   - leetcode
 ---
 
-# LeetCode 234 — Palindrome Linked List
+# [LeetCode 234 — Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list)
 
   **Problem:** Check if a singly linked list is a palindrome in `O(n)` time and `O(1)` space.
 
