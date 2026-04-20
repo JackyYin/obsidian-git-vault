@@ -57,8 +57,8 @@ tags:
 ---
 
 Other Detailed Solutions:
-- [[Leetcode 148 - Sort List]]
-- [[Leetcode 1836 - Remove Duplicates From an Unsorted Linked List]]
+- [[LeetCode 148 - Sort List]]
+- [[LeetCode 1836 - Remove Duplicates From an Unsorted Linked List]]
 
 Other LeetCode Problems:
 - [83. Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list)
