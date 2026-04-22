@@ -24,7 +24,7 @@ Passionate about low-level hardware-software co-design and MCU-class platform en
 * **Kernel:** Linux Kernel Modules, eBPF, ELF/Linkers, Page Table Walking, Livepatch, Memory Management.
 * **MCU Protocols:** SPI, USB, UART
 * **Security & Hardware:** Intel CET (Shadow Stack/IBT), Retpoline, Rethunk, Big-Endian/Little-Endian optimization
-* **Tools:** GDB, Valgrind, Perf, Kdump/Crash, LLVM, Git, CMake.
+* **Tools:** Kdump/Crash, LLVM, Git, CMake, GDB, Valgrind, Perf.
 
 ---
 
@@ -42,7 +42,7 @@ Passionate about low-level hardware-software co-design and MCU-class platform en
 
 ## Experience
 
-### **Trend Micro — ORCA (Kernel Security)**
+### **Trend Micro — ORCA (Linux Kernel & Security)**
 *Senior Software Engineer | 2023 – 2026*
 
 * **Architecture Porting:** Engineered Linux kernel module support for **PowerPC** and **s390x** (Mainframe) architectures. Resolved complex architecture-specific hurdles, including **PowerPC TOC (Table of Contents)** and manual **page table walking** logic.
