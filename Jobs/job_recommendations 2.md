@@ -1,7 +1,6 @@
 ---
-created: '2026-04-14'
+created: 2026-04-14
 tags:
-  - jobs
   - career
   - kernel
   - linux
@@ -13,7 +12,7 @@ locations:
   - 新北
   - 新竹
   - 台中
-generated: '2026-04-14'
+generated: 2026-04-14
 ---
 # 職缺清單 — 殷豪（Senior Systems / Kernel Engineer）
 > **Generated:** 2026-04-14  

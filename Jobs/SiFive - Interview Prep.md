@@ -1,7 +1,6 @@
 ---
 tags:
   - career
-  - jobs
   - interview
 ---
 
@@ -14,16 +13,16 @@ tags:
 
 ---
 
-## SiFive Business Model
+# SiFive Business Model
 
 SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of them as the "ARM of RISC-V":
 
-| | |
-|---|---|
-| **What they sell** | RISC-V processor IP (Core IP blocks) |
-| **How they make money** | Upfront licensing fees + royalties per chip sold |
-| **Who buys** | SoC companies, chip designers (automotive, data center, AI edge, IoT) |
-| **What they don't do** | Fabricate chips — customers tape out using SiFive IP |
+|                         |                                                                       |
+| ----------------------- | --------------------------------------------------------------------- |
+| **What they sell**      | RISC-V processor IP (Core IP blocks)                                  |
+| **How they make money** | Upfront licensing fees + royalties per chip sold                      |
+| **Who buys**            | SoC companies, chip designers (automotive, data center, AI edge, IoT) |
+| **What they don't do**  | Fabricate chips — customers tape out using SiFive IP                  |
 
 **Product lines:**
 - **SiFive Essential** — embedded/IoT cores
@@ -35,9 +34,147 @@ SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of 
 
 **Why Taiwan?** Close to TSMC, MediaTek, Realtek, and the broader SoC ecosystem that licenses their IP.
 
+
 ---
 
-## Role Breakdown
+# Flow for chip production
+
+```
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                         IP VENDORS                                  │
+  │                                                                     │
+  │   ┌─────────────┐   ┌─────────────┐   ┌──────────────────────┐      │
+  │   │   SiFive    │   │     ARM     │   │  Synopsys / Cadence  │      │
+  │   │  (CPU core) │   │  (CPU core) │   │  (USB / PCIe / DDR)  │      │
+  │   └──────┬──────┘   └──────┬──────┘   └────────────┬─────────┘      │
+  └──────────┼─────────────────┼───────────────────────┼────────────────┘
+             │   license RTL + software stack          │
+             └─────────────────┬───────────────────────┘
+                               ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                    CHIP DESIGNERS (Fabless)                         │
+  │                                                                     │
+  │   ┌──────────────────────────────────────────────────────────┐      │
+  │   │              SoC (e.g. MediaTek / Apple / Qualcomm)      │      │
+  │   │                                                          │      │
+  │   │  ┌────────────┐  ┌─────────┐  ┌───────┐  ┌──────────┐    │      │
+  │   │  │ RISC-V CPU │  │   USB   │  │  DDR  │  │   PCIe   │    │      │
+  │   │  │ (SiFive IP)│  │  (IP)   │  │  (IP) │  │   (IP)   │    │      │
+  │   │  └────────────┘  └─────────┘  └───────┘  └──────────┘    │      │
+  │   │                    custom glue logic                     │      │
+  │   └──────────────────────────────────────────────────────────┘      │
+  └─────────────────────────────┬───────────────────────────────────────┘
+                                │  tape-out (GDS-II layout files)
+                                ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                     MANUFACTURERS (Foundries)                       │
+  │                                                                     │
+  │         ┌──────────┐       ┌──────────┐       ┌──────────┐          │
+  │         │   TSMC   │       │ Samsung  │       │  Intel   │          │
+  │         │ (台積電)  │       │ Foundry  │       │ Foundry  │          │
+  │         └──────────┘       └──────────┘       └──────────┘          │
+  └─────────────────────────────┬───────────────────────────────────────┘
+                                │  physical chips
+                                ▼
+                    ┌───────────────────────┐
+                    │      End Products     │
+                    │  Phones / Servers /   │
+                    │     Cars / IoT        │
+                    └───────────────────────┘
+```
+
+
+```
+  ─────────────────────────────────────────────────────────────────────
+    MONEY FLOW (reversed)
+  ─────────────────────────────────────────────────────────────────────
+
+    End customer ──▶ Chip designer ──▶ Foundry       (fab fee / wafer)
+                                 └───▶ IP vendor     (license fee + royalty/chip)
+```
+
+
+---
+
+# What is License RTL?
+
+  **RTL** stands for **Register Transfer Level** — it's the source code of a chip.
+
+  ---
+
+## What RTL Is
+
+  Just like software has source code (C, Python...), hardware has its own "source code"
+  written in hardware description languages:
+
+  ```
+  Software world          Hardware world
+  ──────────────          ──────────────
+  C / C++ code      ≈     RTL (Verilog / VHDL / Chisel)
+  GCC compiler      ≈     Synthesis tool (Synopsys Design Compiler)
+  Binary (.exe)     ≈     GDS-II (layout file sent to TSMC)
+  ```
+
+  RTL describes **how data moves between registers every clock cycle** — hence
+  "Register Transfer Level."
+
+
+  ## A Simple Example
+
+  A hardware adder in RTL (Verilog):
+
+  ```verilog
+  module adder (
+      input  clk,
+      input  [31:0] a, b,
+      output reg [31:0] result
+  );
+      always @(posedge clk) begin
+          result <= a + b;   // transfer: compute a+b, store in result register
+      end
+  endmodule
+  ```
+
+  This describes **logic behaviour**, not physical transistors. The synthesis tool then
+  converts this into actual gates and wires on silicon.
+  
+  ---
+
+## What "License RTL" Means
+
+  When SiFive licenses their CPU to MediaTek, they hand over:
+
+  ```
+  SiFive delivers:
+  ├── core.v          ← RTL source (Verilog) of the CPU
+  ├── testbench/      ← verification suite
+  ├── docs/           ← architecture spec
+  └── software/       ← Linux BSP, OpenSBI, drivers  ← your job
+  ```
+
+  MediaTek then:
+  1. Integrates the CPU RTL into their SoC design
+  2. Runs synthesis → generates GDS-II
+  3. Sends GDS-II to TSMC to fabricate
+
+  ---
+
+## Why It's Valuable (and Licensed, Not Sold)
+
+  SiFive spent years and millions of dollars designing, verifying, and optimizing their
+  CPU cores. The RTL **is** their product — equivalent to source code.
+
+  They don't sell it outright. They **license** it, meaning:
+  - You can use it under agreed terms
+  - You can't resell it or sublicense it
+  - Every chip you ship pays a royalty back to SiFive
+
+  > Same reason you pay Microsoft per Windows license, not a one-time purchase
+  > of the source code.
+
+---
+
+# Role Breakdown
 
 **Core work:**
 - Linux kernel + device drivers for SiFive's RISC-V processors

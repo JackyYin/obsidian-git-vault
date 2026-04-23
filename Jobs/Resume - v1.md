@@ -1,7 +1,6 @@
 ---
 tags:
   - career
-  - jobs
 ---
 
 # 殷豪
