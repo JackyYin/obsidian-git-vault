@@ -1,6 +1,8 @@
 ---
 tags:
   - computer_architecture
+  - linux
+  - kernel
 ---
 ```
                           HARDWARE POWER ON

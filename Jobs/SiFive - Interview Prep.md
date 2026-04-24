@@ -100,7 +100,6 @@ SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of 
 
   **RTL** stands for **Register Transfer Level** — it's the source code of a chip.
 
-  ---
 
 ## What RTL Is
 
@@ -138,7 +137,7 @@ SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of 
   This describes **logic behaviour**, not physical transistors. The synthesis tool then
   converts this into actual gates and wires on silicon.
   
-  ---
+---
 
 ## What "License RTL" Means
 
@@ -174,7 +173,7 @@ SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of 
 
 ---
 
-# Role Breakdown
+## Role Breakdown
 
 **Core work:**
 - Linux kernel + device drivers for SiFive's RISC-V processors
@@ -197,7 +196,7 @@ SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of 
 - Explain a driver you've written: `probe()`, `remove()`, `file_operations`, `platform_driver`
 - Difference between character, block, and platform devices
 - Interrupt handling: `request_irq()`, threaded IRQs, softirqs
-- Memory management: `kmalloc` vs `vmalloc`, DMA mapping, `ioremap`
+- Memory management: [[kmalloc() vs. vmalloc()]], DMA mapping, `ioremap`
 
 ### 2. RISC-V Architecture ⚠️ (prep needed)
 
@@ -205,6 +204,8 @@ SiFive is a **fabless IP licensing company**, not a chip manufacturer. Think of 
 - **OpenSBI** = RISC-V equivalent of ARM TF-A — runs in M-mode, provides SBI calls to kernel in S-mode
 - RISC-V Vector extension (RVV) — understand the concept
 - How RISC-V differs from x86/ARM: modular, no mandatory ISA bloat
+
+
 
 ### 3. Boot Flow
 
