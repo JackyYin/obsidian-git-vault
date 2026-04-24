@@ -42,6 +42,7 @@ tags:
 | ----- | ----------------------------------------- |
 | 0     | sent resume by 104 [[Resume - v1]] (4/14) |
 | 1     | HR phone call (4/22)                      |
+| 2     | phone interview (4/24)                    |
 
 ---
 
@@ -69,4 +70,4 @@ tags:
 | PHASE |                                                        |
 | ----- | ------------------------------------------------------ |
 | 0     | sent resume by greenhouse [[Resume - Embedded]] (4/22) |
-| 1     |                                                        |
+| 1     | email rejected (4/24)                                  |
