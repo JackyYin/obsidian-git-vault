@@ -13,6 +13,7 @@ tags:
 ## 1. RISC-V Architecture Fundamentals
 
 ### Privilege Levels
+
 ```
 Machine Mode    (M-mode)   ← highest privilege
                            OpenSBI runs here

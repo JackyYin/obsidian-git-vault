@@ -32,8 +32,8 @@ Passionate about low-level hardware-software co-design and MCU-class platform en
 ### **Game Boy Emulator**
 [Link To Repository](https://github.com/JackyYin/gb-emu)
 * **Core Architecture:** Developed a full-featured Game Boy (LR35902/SM83) emulator from scratch using C/C++, focusing on cycle-accurate instruction timing.
-* **Memory Mapping:** Implemented **Memory Bank Controller (MBC1)** logic, supporting bank switching for large ROMs (up to 2MB) and external RAM banking.
-* **Graphics:** Engineered a Pixel Processing Unit (PPU) simulation for tile-based rendering.
+* **DMA & Memory Architecture:** Implemented **DMA-driven pixel transfers** between VRAM and the display framebuffer, and designed a **Memory Bank Controller (MBC1)** supporting bank switching for large ROMs (up to 2MB) and external RAM.
+* **Graphics:** Engineered a **Pixel Processing Unit (PPU)** — implementing a tile-based rendering pipeline, **VRAM and OAM (Object Attribute Memory) buffer management**, and memory-mapped graphics registers.
 * **Hardware & I/O**: Simulated hardware peripheral interfaces including timer interrupts, serial I/O (analogous to SPI), and memory-mapped I/O — mirroring real MCU peripheral driver design patterns.
 
 ---
@@ -56,23 +56,18 @@ Passionate about low-level hardware-software co-design and MCU-class platform en
 * **Stability & Debugging:** Utilized **Valgrind and GDB** on a daily basis to eliminate memory leaks, race conditions, and segmentation faults.
 * **ML Integration:** Successfully integrated pre-trained machine learning models into the C++ scanning pipeline to support multi-language spam detection.
 
-### **Botbonnie Inc.**
-*Backend & Cloud Engineer | 2019 – 2021*
-
-* **System Architecture:** Designed scalable database schemas and serverless system architectures using **AWS Lambda, SQS, and DynamoDB** to support high-traffic chatbot interactions.
-* **API Development:** Built robust APIs and complex chatbot logic flows using **Node.js**, focusing on asynchronous performance and integration flexibility.
-
 ### **Earlier Experience**
-*DevOps Engineer, STARLUX Airlines (2019) | Software Engineer, Larvata (2017–2018)*
+*Backend Engineer, Botbonnie Inc. (2019–2021) | DevOps Engineer, STARLUX Airlines (2019) | Software Engineer, Larvata (2017–2018)*
 
+* Built serverless backend systems using **AWS Lambda, SQS, and DynamoDB** to support high-traffic production workloads.
 * Orchestrated **OpenShift** clusters and built monitoring systems using **Prometheus and EFK stack**.
-* Developed backend APIs with **PHP (Laravel)**, containerized legacy projects with **Docker**, and established CI/CD pipelines.
+* Containerized legacy projects with **Docker** and established CI/CD pipelines.
 
 ---
 
 ## Education
-**Bachelor of Information Management** National Taiwan University, Taipei
-**Science Track** in National Experimental High School, Hsinchu
+**Bachelor of Information Management** - National Taiwan University, Taipei
+**Science Track**  - National Experimental High School, Hsinchu
 
 ---
 

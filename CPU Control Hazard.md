@@ -1,7 +1,5 @@
 ---
 tags:
-  - career
-  - interview
   - computer-architecture
   - RISC-V
   - CPU
