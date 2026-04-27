@@ -161,30 +161,85 @@ The kernel doesn't load all pages at program start — it maps them lazily:
 
 ---
 
-## Case 2 — Swap-in (Major Fault)
+## Case 2 — Swap-out and Swap-in (Major Fault)
 
-Page was evicted to disk under memory pressure:
+### Swapping Out
+
+Page evicted from physical memory to disk under memory pressure:
 
 ```
-  Physical RAM full → kernel swaps out cold pages to disk
-        │
-        ▼
-  PTE updated: present=0, swap entry stored in PTE bits
-        │
-  later: process accesses the swapped page
-        │
-        ▼
-  PAGE FAULT  ← PTE not present
-        │
-        ▼
-  kernel reads swap entry from PTE
-  allocates new page frame
-  reads page from swap device (disk I/O)  ← SLOW, major fault
-  updates PTE: present=1
-        │
-        ▼
-  CPU retries instruction ✅
+                                Swapping Out
 
+  User Virtual Address Space       TLB            Physical Address Space
+  ┌────────────────┐          ┌──────────┐        ┌────────────────┐
+  │                │          │          │        │                │
+  │  ┌──────────┐  │          │ ┌──────┐ │        │  ┌──────────┐  │
+  │  │  page 0  │──┼──────────┼▶│ VPN0 │─┼────────┼─▶│ frame 0  │  │
+  │  ├──────────┤  │          │ ├──────┤ │        │  ├──────────┤  │
+  │  │  page 1  │──┼──────────┼▶│ VPN1 │─┼────────┼─▶│ frame 1  │  │
+  │  ├──────────┤  │          │ ├──────┤ │        │  ├──────────┤  │
+  │  │  ██████  │  │          │ │      │ │        │  │          │  │
+  │  │  page 2  │──┼─────────▶│ │(none)│─┼────────┼─▶│  (free)  │──│────┐
+  │  │  ██████  │  │erase TLB │ ├──────┤ │        │  │          │  │    │
+  │  │(evicted) │  │          │ │ VPN3 │ |        |  ├──────────┤  │    │
+  │  ├──────────┤  │          │ |      |─┼────────┼─▶│ frame 3  │  │    │
+  │  │  page 3  │──┼──────────┼▶└──────┘ │        │  └──────────┘  │    │
+  │  └──────────┘  │          └──────────┘        └────────────────┘    │
+  └────────────────┘                                                    │ write
+                                                                        │ to
+                                                    ┌────────────────┐  │ disk
+                                                    │  Swap Media    │  │
+                                                    │  ┌──────────┐  │  │
+                                                    │  │  ██████  │◀─┼──┘
+                                                    │  │  page 2  │  │
+                                                    │  │  ██████  │  │
+                                                    │  └──────────┘  │
+                                                    └────────────────┘
+```
+
+### Swapping In
+
+Process accesses the evicted page — triggers a page fault, kernel reads page back from disk:
+
+```
+                                Swapping In
+
+  User Virtual Address Space       TLB            Physical Address Space
+  ┌────────────────┐          ┌──────────┐        ┌────────────────┐
+  │                │          │          │        │                │
+  │  ┌──────────┐  │          │ ┌──────┐ │        │  ┌──────────┐  │
+  │  │  page 0  │──┼──────────┼▶│ VPN0 │─┼────────┼─▶│ frame 0  │  │
+  │  ├──────────┤  │          │ ├──────┤ │        │  ├──────────┤  │
+  │  │  page 1  │──┼──────────┼▶│ VPN1 │─┼────────┼─▶│ frame 1  │  │
+  │  ├──────────┤  │          │ ├──────┤ │        │  ├──────────┤  │
+  │  │  ██████  │  │  PAGE    │ │ VPN2 │ │        │  │  ██████  │  │
+  │  │  page 2  │──┼──FAULT──▶│ │(new) │─┼────────┼─▶│ frame 2  │  │◀──┐
+  │  │  ██████  │  │  present │ ├──────┤ │        │  │ (filled) │  │   │
+  │  │(accessed)│  │  =0→1    │ │ VPN3 │ |        |  ├──────────┤  │   │
+  │  ├──────────┤  │          │ │      │─┼────────┼─▶│ frame 3  │  │   │
+  │  │  page 3  │──┼──────────┼▶└──────┘ │        │  └──────────┘  │   │
+  │  └──────────┘  │          └──────────┘        └────────────────┘   │
+  └────────────────┘                                                   │ disk I/O
+                                                                       │ read
+                                                    ┌────────────────┐ │
+                                                    │  Swap Media    │ │
+                                                    │  ┌──────────┐  │ │
+                                                    │  │  ██████  │──┼─┘
+                                                    │  │  page 2  │  │
+                                                    │  │  ██████  │  │
+                                                    │  └──────────┘  │
+                                                    └────────────────┘
+```
+
+Swap-in steps:
+1. CPU accesses page 2 → TLB miss → MMU walks page table → `present=0` → **page fault**
+2. Kernel reads swap offset from PTE → issues **disk I/O** to read page 2 from swap media
+3. Page loaded into a free physical frame
+4. PTE updated: `present=1`, PFN set to new frame
+5. New TLB entry inserted: VPN2 → frame
+6. CPU retries instruction ✅
+
+```
   Minor fault = page in memory, just not mapped  (fast, ~µs)
   Major fault = page on disk, needs I/O          (slow, ~ms)
 ```
@@ -222,26 +277,26 @@ The most elegant optimization in the kernel — used by `fork()`:
         ▼
   CPU retries the write ✅
 
-  ┌────────────────────────────────────────────────────────────┐
-  │  Before write:                After write (child wrote):   │
-  │                                                            │
-  │  Parent VMA                   Parent VMA                   │
-  │  PTE ──────────┐              PTE ─────────────────────┐   │
-  │                │                                       │   │
-  │                ▼                                       ▼   │
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Before write:                After write (child wrote):    │
+  │                                                             │
+  │  Parent VMA                   Parent VMA                    │
+  │  PTE ──────────┐              PTE ─────────────────────┐    │
+  │                │                                       │    │
+  │                ▼                                       ▼    │
   │         ┌────────────┐                          ┌──────────┐│
   │         │ shared page│                          │ original ││
   │         │  (ro both) │                          │  page    ││
   │         └────────────┘                          └──────────┘│
   │                ▲                                            │
   │  Child VMA     │              Child VMA                     │
-  │  PTE ──────────┘              PTE ──────────────────────┐  │
-  │                                                         ▼  │
+  │  PTE ──────────┘              PTE ──────────────────────┐   │
+  │                                                         ▼   │
   │                                                  ┌─────────┐│
   │                                                  │new copy ││
-  │                                                  │(writable)││
+  │                                                  │(writable)│
   │                                                  └─────────┘│
-  └────────────────────────────────────────────────────────────┘
+  └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -361,19 +416,19 @@ Virtual address accessed by CPU
         check perms ─── mismatch ──▶ SIGSEGV
         │
         handle_mm_fault()
-        │
-        ├── anonymous page    → alloc page, zero-fill, map PTE
-        │   (demand paging)
-        │
-        ├── file-backed page  → read from file/ELF, map PTE
-        │   (mmap / execve)
-        │
-        ├── swap page         → read from disk, map PTE (major fault)
-        │
-        ├── CoW page          → alloc new page, copy, remap PTE
-        │   (fork + write)
-        │
-        └── stack growth      → expand VMA, alloc page, map PTE
+	        │
+	        ├── anonymous page    → alloc page, zero-fill, map PTE
+	        │   (demand paging)
+	        │
+	        ├── file-backed page  → read from file/ELF, map PTE
+	        │   (mmap / execve)
+	        │
+	        ├── swap page         → read from disk, map PTE (major fault)
+	        │
+	        ├── CoW page          → alloc new page, copy, remap PTE
+	        │   (fork + write)
+	        │
+		    └── stack growth      → expand VMA, alloc page, map PTE
         │
         ▼
   return from exception
