@@ -102,11 +102,11 @@ Every x86-64 function call follows a predictable stack discipline. The prologue 
   0x7fffffffe030│  return address  │  = 0x401045
                 ├──────────────────┤
   0x7fffffffe028│  saved RBP       │◀── RSP, RBP     RSP = 0x7fffffffe028
-                ├ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+                ├ ─ ─ ─ ─ ─ ─ ─ ── ┤
   0x7fffffffe020│  (dead locals)   │
                   ...
   0x7fffffffe008│                  │  no longer accessible
-                └ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+                └ ─ ─ ─ ─ ─ ─ ─ ── ┘
 ```
 
 ### STEP 5 — `pop rbp` (at 0x401133)
