@@ -21,7 +21,7 @@ Passionate about low-level hardware-software co-design and MCU-class platform en
 ## Technical Skills
 * **Languages:** C, C++, Assembly (x86, arm64, PowerPC, s390), Shell (Bash), Python, Node.js, PHP (Laravel).
 * **Kernel:** Linux Kernel Modules, eBPF, ELF/Linkers, Page Table Walking, Livepatch, Memory Management.
-* **MCU Protocols:** SPI, USB, UART
+* **MCU Protocols:** SPI, USB, UART, ISR (Interrupt Service Routine)
 * **Security & Hardware:** Intel CET (Shadow Stack/IBT), Retpoline, Rethunk, Big-Endian/Little-Endian optimization
 * **Tools:** Kdump/Crash, LLVM, Git, CMake, GDB, Valgrind, Perf.
 
