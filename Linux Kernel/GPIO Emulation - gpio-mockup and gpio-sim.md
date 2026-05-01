@@ -99,17 +99,22 @@ cat /sys/kernel/debug/gpio | grep sim
 
 ### Trigger IRQ (pull a line high/low)
 
+Signal injection is done via **sysfs**, not configfs. configfs is only for chip configuration.
+
 ```bash
+# Find the correct path first
+ls /sys/devices/platform/gpio-sim.0/gpiochip0/
+
 # Rising edge (triggers IRQF_TRIGGER_RISING)
-echo 0 > /sys/kernel/config/gpio-sim/my-chip/bank0/line0/pull
-echo 1 > /sys/kernel/config/gpio-sim/my-chip/bank0/line0/pull
+echo 0 > /sys/devices/platform/gpio-sim.0/gpiochip0/sim_gpio0/pull
+echo 1 > /sys/devices/platform/gpio-sim.0/gpiochip0/sim_gpio0/pull
 
 # Falling edge (triggers IRQF_TRIGGER_FALLING)
-echo 0 > /sys/kernel/config/gpio-sim/my-chip/bank0/line0/pull
+echo 0 > /sys/devices/platform/gpio-sim.0/gpiochip0/sim_gpio0/pull
 ```
 
-> `pull` sets the simulated hardware line level — this is what triggers the IRQ on the driver side.
-> `/sys/devices/platform/gpio-sim.0/.../value` is read-only — it shows what the driver sees, not for injection.
+> `sim_gpioX` where X is the **line offset** (0, 1, 2…), not the global GPIO number.
+> The `.0` suffix and `gpiochipY` number may differ — check with `ls /sys/devices/platform/gpio-sim.*/`.
 
 ### Tear down
 
@@ -181,9 +186,9 @@ Before testing in a driver, confirm gpio-sim IRQ simulation works:
 # Terminal 1 — watch for events
 gpiomon --num-events=2 --both-edges gpiochip0 0
 
-# Terminal 2 — trigger
-echo 1 > /sys/kernel/config/gpio-sim/my-chip/bank0/line0/pull
-echo 0 > /sys/kernel/config/gpio-sim/my-chip/bank0/line0/pull
+# Terminal 2 — trigger via sysfs (not configfs)
+echo 1 > /sys/devices/platform/gpio-sim.0/gpiochip0/sim_gpio0/pull
+echo 0 > /sys/devices/platform/gpio-sim.0/gpiochip0/sim_gpio0/pull
 ```
 
 If `gpiomon` receives events, IRQ simulation is working correctly.
