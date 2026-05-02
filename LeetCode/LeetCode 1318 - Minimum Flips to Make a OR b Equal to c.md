@@ -1,3 +1,10 @@
+---
+tags:
+  - leetcode
+  - C
+  - bits_operation
+---
+
 # LeetCode 1318 — Minimum Flips to Make a OR b Equal to c
 
 ## Problem

@@ -3,6 +3,7 @@ tags:
   - linked-list
   - leetcode
   - C
+  - C++
 ---
 
 # LeetCode 82 — Remove Duplicates from Sorted List II
@@ -13,7 +14,11 @@ Given a sorted linked list, delete **all** nodes that have duplicate numbers, le
 
 Example: `1 → 2 → 3 → 3 → 4 → 4 → 5` becomes `1 → 2 → 5`.
 
-## Implementation
+## Implementations
+
+Both use the same `ListNode**` trick (no dummy node). They differ only in **where `cur` is advanced** within the loop body.
+
+### V1 — C++ (advance `cur` *after* the if/else)
 
 ```cpp
 class Solution {
@@ -30,19 +35,46 @@ public:
             }
 
             if (shifted) {
-                *ptr = cur->next;
+                *ptr = cur->next;          // cur is on the LAST duplicate
             }
             else {
                 ptr = &(*ptr)->next;
             }
-            cur = cur->next;
+            cur = cur->next;               // advance afterwards
         }
         return head;
     }
 };
 ```
 
-## The two roles
+### V2 — C (advance `cur` *before* the if/else — slightly cleaner)
+
+```c
+struct ListNode* deleteDuplicates(struct ListNode* head) {
+    struct ListNode *cur = head;
+    struct ListNode **ptr = &head;
+
+    while (cur) {
+        bool duplicated = false;
+        while (cur && cur->next && cur->val == cur->next->val) {
+            duplicated = true;
+            cur = cur->next;
+        }
+
+        cur = cur->next;                // advance first — cur now past the run
+
+        if (duplicated) {
+            *ptr = cur;                 // splice degenerates to *ptr = cur
+        }
+        else {
+            ptr = &(*ptr)->next;
+        }
+    }
+    return head;
+}
+```
+
+## The two roles (shared by both versions)
 
 - **`cur`** — the scanner. Walks through the list one node at a time.
 - **`ptr`** — a *pointer to a pointer*. It points at whichever `next` field would need to be rewritten if the upcoming run turns out to be a duplicate. Starts as `&head` because the very first kept node might *be* the head.
@@ -55,14 +87,12 @@ The **inner while** scans forward as long as `cur->val == cur->next->val`. After
 
 Then:
 
-| `shifted` | meaning | action |
-|---|---|---|
-| `true` | run of duplicates found | `*ptr = cur->next` — splice the whole run out |
+| flag    | meaning                  | action                                             |
+| ------- | ------------------------ | -------------------------------------------------- |
+| `true`  | run of duplicates found  | rewrite `*ptr` to skip the whole run               |
 | `false` | `cur` is unique, keep it | `ptr = &(*ptr)->next` — advance the "rewrite slot" |
 
-Finally `cur = cur->next` moves past the run / past the kept node.
-
-## Trace: `1 → 2 → 3 → 3 → 4 → 4 → 5`
+## Trace (V1 conventions): `1 → 2 → 3 → 3 → 4 → 4 → 5`
 
 ```
 Start:    head → [1] → [2] → [3] → [3] → [4] → [4] → [5]
@@ -99,9 +129,22 @@ When we find duplicates, we need to rewrite the `next` field of the **last kept 
 
 ### Edge case: duplicates at the head — `1 → 1 → 1 → 2`
 
-- iter 1: run of 1s detected, `*ptr = [2]` — but `ptr == &head`, so **`head` itself becomes `[2]`**.
+- iter 1: run of 1s detected, splice rewrites `*ptr` to `[2]` — but `ptr == &head`, so **`head` itself becomes `[2]`**.
 
 Same code path, no special case needed. That's the win over the typical dummy-node approach.
+
+## V1 vs V2: what actually differs
+
+| | V1 (C++) | V2 (C) |
+| --- | --- | --- |
+| Bool literal | `bool shifted = 0` | `bool duplicated = false` |
+| Position of `cur = cur->next` | **after** if/else | **before** if/else |
+| Splice expression | `*ptr = cur->next` | `*ptr = cur` |
+| Behavior | identical | identical |
+
+By advancing `cur` first (V2), `cur` means **"next node to consider"** at the moment of the splice, so the splice degenerates to `*ptr = cur` — easier to read. In V1, `cur` is still sitting on the last duplicate at the splice line, which is why it needs `cur->next`.
+
+Net effect: same writes, same reads. V2 is slightly more readable; V1 keeps the advance unconditional at the bottom of the loop.
 
 ## Complexity
 
