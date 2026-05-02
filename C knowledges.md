@@ -54,5 +54,5 @@ int main() {
 
 
 [[Preprocessor]]
-[[Bits Manipulation]]
+[[Bits Operation]]
 [[Linked List]]

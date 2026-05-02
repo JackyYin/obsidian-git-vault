@@ -2,6 +2,7 @@
 tags:
   - C
   - embedded
+  - linked-list
 ---
 
 ## [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
@@ -57,6 +58,7 @@ tags:
 ---
 
 Other Detailed Solutions:
+- [[LeetCode 82 - Remove Duplicates from Sorted List II]] (unsolved)
 - [[LeetCode 148 - Sort List]]
 - [[LeetCode 1836 - Remove Duplicates From an Unsorted Linked List]]
 

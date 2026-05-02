@@ -2,6 +2,7 @@
 tags:
   - C
   - embedded
+  - bits_operation
 ---
 
 1. What's the difference between logical shift and arithmetic shift ?
