@@ -2,9 +2,8 @@
 tags:
   - C
   - language-spec
-  - interview
   - embedded-C
-spec: 'ISO/IEC 9899:2011 §6.3.1.1, §6.3.1.3, §6.3.1.8'
+spec: ISO/IEC 9899:2011 §6.3.1.1, §6.3.1.3, §6.3.1.8
 ---
 
 # C Integer Conversion Matrix
