@@ -3,7 +3,6 @@ tags:
   - linked-list
   - leetcode
   - C
-  - C++
 ---
 
 # LeetCode 82 — Remove Duplicates from Sorted List II
