@@ -245,66 +245,49 @@ static int irq_thread(void *data)
 ## Putting it all together
 
 ```
-                                      Hardware                                    
-                                         │                                          
-                              MSI write / pin assert                                
-                                         │                                          
-                              ┌──────────▼──────────┐                              
-                              │   IO-APIC / MSI     │                              
-                              │   routing fabric    │                              
-                              └──────────┬──────────┘                              
-                                         │  vector + dest CPU                      
-                              ┌──────────▼──────────┐                              
-                              │   target LAPIC      │                              
-                              │   raises INTR       │                              
-                              └──────────┬──────────┘                              
-                                         │                                          
-═════════════════════════════════════════╪══════════════════════════════════════════
-                          CPU microcode  │                                          
-                                         ▼                                          
-                              IDTR → idt_table[vector]                              
-                              push SS:RSP:RFLAGS:CS:RIP                             
-                              jump to gate.offset                                   
-                                         │                                          
-═════════════════════════════════════════╪══════════════════════════════════════════
-                          Kernel asm     │                                          
-                                         ▼                                          
-                              irq_entries_start[vector]:                            
-                                push  $vector                                       
-                                jmp   asm_common_interrupt                          
-                                         │                                          
-                              build pt_regs, swapgs, switch to IRQ stack            
-                                         │                                          
-═════════════════════════════════════════╪══════════════════════════════════════════
-                          Kernel C       │                                          
-                                         ▼                                          
-                              common_interrupt(regs, vector)                        
-                                  desc = vector_irq[vector]                         
-                                         │                                          
-                                         ▼                                          
-                              handle_irq(desc, regs)                                
-                                         │                                          
-                                         ▼                                          
-                              generic_handle_irq_desc(desc)                         
-                                  → desc->handle_irq(desc)                          
-                                         │                                          
-                                         ▼                                          
-                              handle_edge_irq / handle_level_irq / …                
-                                  ack, mask, then handle_irq_event                  
-                                         │                                          
-                                         ▼                                          
-                              handle_irq_event_percpu                               
-                                  → __handle_irq_event_percpu                       
-                                         │                                          
-                                         ▼                                          
-                              for_each_action_of_desc(desc, action):                
-                                  res = action->handler(irq, action->dev_id);       
-                                                              │                     
-═════════════════════════════════════════════════════════════╪══════════════════════
-                          Your driver                          │                     
-                                                              ▼                     
-                                              irqreturn_t my_isr(int, void *)       
-                                              { ... return IRQ_HANDLED; }           
+[ Hardware ]
+    MSI write / pin assert
+        ↓
+    IO-APIC / MSI routing fabric
+        ↓  (vector + dest CPU)
+    target LAPIC raises INTR
+
+──────────────────────────────────────────────
+[ CPU microcode ]
+    IDTR → idt_table[vector]
+    push SS:RSP:RFLAGS:CS:RIP
+    jump to gate.offset
+
+──────────────────────────────────────────────
+[ Kernel asm ]
+    irq_entries_start[vector]:
+        push $vector
+        jmp  asm_common_interrupt
+    build pt_regs, swapgs, switch to IRQ stack
+
+──────────────────────────────────────────────
+[ Kernel C ]
+    common_interrupt(regs, vector)
+        desc = vector_irq[vector]
+        ↓
+    handle_irq(desc, regs)
+        ↓
+    generic_handle_irq_desc(desc)
+        → desc->handle_irq(desc)
+        ↓
+    handle_edge_irq / handle_level_irq / …
+        ack, mask, then handle_irq_event
+        ↓
+    handle_irq_event_percpu
+        → __handle_irq_event_percpu
+        ↓
+    for_each_action_of_desc(desc, action):
+        res = action->handler(irq, action->dev_id);
+
+──────────────────────────────────────────────
+[ Your driver ]
+    irqreturn_t my_isr(int irq, void *dev_id)
+    { ... return IRQ_HANDLED; }
 ```
 
 ## Hooking your driver in

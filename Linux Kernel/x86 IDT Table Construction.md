@@ -34,14 +34,14 @@ The table is later remapped read-only at a fixed virtual address in the *cpu ent
 
 All defined in `arch/x86/kernel/idt.c`:
 
-| Source table | Purpose | Examples |
-|---|---|---|
-| `early_idts[]` | Minimum needed before TSS/IST is ready | `INTG(X86_TRAP_DB, asm_exc_debug)`, `SYSG(X86_TRAP_BP, asm_exc_int3)` |
-| `def_idts[]` | Full set of architecture-defined exceptions | DE, NMI, OF, BR, UD, NM, **DF (ISTG)**, **DB (ISTG)**, MC, TS, NP, SS, GP, PF, MF, AC, XF, VC, CP |
-| `early_pf_idts[]` (x86_64) | Page-fault before IST is ready | `INTG(X86_TRAP_PF, asm_exc_page_fault)` |
-| `ia32_idt[]` | 32-bit syscall gate when ia32 emu enabled | `SYSG(IA32_SYSCALL_VECTOR, …)` |
-| `apic_idts[]` | APIC system vectors (IPIs, timer, error) | `RESCHEDULE_VECTOR`, `CALL_FUNCTION_VECTOR`, `LOCAL_TIMER_VECTOR` |
-| `irq_entries_start` (asm) | The 224 external device-IRQ stubs | One stub per vector in `[FIRST_EXTERNAL_VECTOR, FIRST_SYSTEM_VECTOR)` |
+| Source table               | Purpose                                     | Examples                                                                                          |
+| -------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `early_idts[]`             | Minimum needed before TSS/IST is ready      | `INTG(X86_TRAP_DB, asm_exc_debug)`, `SYSG(X86_TRAP_BP, asm_exc_int3)`                             |
+| `early_pf_idts[]` (x86_64) | Page-fault before IST is ready              | `INTG(X86_TRAP_PF, asm_exc_page_fault)`                                                           |
+| `def_idts[]`               | Full set of architecture-defined exceptions | DE, NMI, OF, BR, UD, NM, **DF (ISTG)**, **DB (ISTG)**, MC, TS, NP, SS, GP, PF, MF, AC, XF, VC, CP |
+| `ia32_idt[]`               | 32-bit syscall gate when ia32 emu enabled   | `SYSG(IA32_SYSCALL_VECTOR, …)`                                                                    |
+| `apic_idts[]`              | APIC system vectors (IPIs, timer, error)    | `RESCHEDULE_VECTOR`, `CALL_FUNCTION_VECTOR`, `LOCAL_TIMER_VECTOR`                                 |
+| `irq_entries_start` (asm)  | The 224 external device-IRQ stubs           | One stub per vector in `[FIRST_EXTERNAL_VECTOR, FIRST_SYSTEM_VECTOR)`                             |
 
 The macros `INTG`, `SYSG`, `ISTG` differ in DPL and IST index:
 
