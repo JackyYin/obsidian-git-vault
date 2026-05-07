@@ -63,6 +63,17 @@ static void toggle(void) { x ^= BITS_3; }
   101000
 ```
 
+8. How to implement `ABS(X)` ?
+```c
+((X >> 31) ^ X) + ((X >> 31) & 1)
+```
+
+```c
+((X >> 31) ^ X) - (X >> 31))
+```
+
+9. 
+
 
 LeetCode:
 - [number of 1 bits](https://leetcode.com/problems/number-of-1-bits/)

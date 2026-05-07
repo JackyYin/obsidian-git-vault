@@ -23,6 +23,19 @@ int main() {
 }
 ```
 
+3. Implement `offsetof(type, member)`
+```c
+#define offsetof(type, member) \
+    (unsigned long)&(((type *)(0))->member)
+```
+
+
+4. Implement `container_of(ptr, type, member)`
+```c
+#define container_of(ptr, type, member) \
+    (type *)((void *)(ptr) - offsetof(type, member))
+```
+
 
 Refs:
 - [jserv](https://hackmd.io/@sysprog/c-preprocessor)

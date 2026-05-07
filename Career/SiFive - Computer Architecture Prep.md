@@ -116,6 +116,8 @@ Cache line = 64 bytes (typical)
 
 ## 4. Cache Coherency (Critical for Multi-core)
 
+- [[MESI Cache Coherency Protocol]]
+
 ```
   Core 0                Core 1
   ──────                ──────
@@ -145,6 +147,7 @@ What happens when Core 1 writes to x while Core 0 has it Shared:
   Core 0's copy  transitions  S → I  (invalidated)
   Core 1's copy  transitions  S → M  (modified)
 ```
+
 
 ---
 
