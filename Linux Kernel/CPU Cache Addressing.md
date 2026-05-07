@@ -115,7 +115,7 @@ Used for **ARM Cortex-A L1 caches** (including Raspberry Pi's Cortex-A72).
 **Bit breakdown of a virtual address:**
 
 ```
- 47                    12 11      6 5       0
+47                   12 11      6 5        0
 ┌──────────────────────┬─────────┬─────────┐
 │   VPN (→ TLB)        │  index  │ offset  │
 └──────────────────────┴─────────┴─────────┘
