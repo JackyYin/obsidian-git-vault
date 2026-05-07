@@ -15,9 +15,9 @@ The `idt_table` is the single 256-entry Interrupt Descriptor Table that the CPU 
 
 ## The one table
 
-```
-arch/x86/kernel/idt.c
+In `arch/x86/kernel/idt.c`:
 
+```
 gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;   // 256 entries
 
 struct desc_ptr idt_descr = {
