@@ -72,7 +72,20 @@ static void toggle(void) { x ^= BITS_3; }
 ((X >> 31) ^ X) - (X >> 31))
 ```
 
-9. 
+9. How to implement round up to next power of two ?
+
+```c
+static int round_up_to_power_of_2(int x) {
+	x |= (x >> 1);
+	x |= (x >> 2);
+	x |= (x >> 4);
+	x |= (x >> 8);
+	x |= (x >> 16);
+	x += 1;
+	return x;
+}
+
+```
 
 
 LeetCode:
