@@ -28,6 +28,29 @@ One PGD entry covers:
   2^30 = 1GB per PGD entry
 ```
 
+### x86_64 (4-level / Sv48)
+
+```
+4-level page table (x86_64, 48-bit canonical):
+
+  Virtual Address (48 bits, sign-extended to 64):
+  ┌──────────┬──────────┬──────────┬──────────┬────────────┐
+  │ PGD idx  │ PUD idx  │ PMD idx  │ PTE idx  │   offset   │
+  │ 9 bits   │ 9 bits   │ 9 bits   │ 9 bits   │  12 bits   │
+  │ (PGD)    │ (PUD)    │ (PMD)    │ (PTE)    │            │
+  └──────────┴──────────┴──────────┴──────────┴────────────┘
+
+Per-level coverage:
+  One PTE entry → 4 KB              (standard page)
+  One PMD entry → 2 MB              (large page "2M")
+  One PUD entry → 1 GB              (huge page "1G")
+  One PGD entry → 512 GB
+  Whole PGD     → 256 TB            (512 entries × 512 GB)
+
+The PGD itself is a single 4 KB page holding 512 × 8-byte entries.
+```
+
+
 ---
 
 ## Does All Kernel Space Share One PGD Entry?
@@ -43,10 +66,10 @@ One PGD entry covers:
 
   PGD table (4 entries total on 32-bit PAE):
   ┌─────────────────────────────────┐
-  │ PGD[0]  covers 0GB–1GB  (user) │
-  │ PGD[1]  covers 1GB–2GB  (user) │
-  │ PGD[2]  covers 2GB–3GB  (user) │
-  │ PGD[3]  covers 3GB–4GB  (kernel) ◀── all kernel in ONE entry │
+  │ PGD[0]  covers 0GB–1GB  (user)  │
+  │ PGD[1]  covers 1GB–2GB  (user)  │
+  │ PGD[2]  covers 2GB–3GB  (user)  │
+  │ PGD[3]  covers 3GB–4GB  (kernel)│ ◀── all kernel in ONE entry
   └─────────────────────────────────┘
 
   → YES, all kernel space fits in PGD[3] on 32-bit ✅
@@ -84,7 +107,36 @@ RISC-V Sv39 (3-level) address space:
 
   Each PGD entry covers 512GB (on 4-level)
   Kernel space = 128TB / 512GB = 256 PGD entries
+
+  PGD table (512 entries total, one 4 KB page):
+  ┌──────────────────────────────────────────────────────────┐
+  │ PGD[0]    covers 0GB     – 512  GB                (user) │
+  │ PGD[1]    covers 512GB   - 1024 GB                (user) │
+  │  ...                                                     │
+  │ PGD[255]  covers 127.5TB - 128  TB                (user) │
+  │ PGD[256]  covers 128  TB - 128.5TB              (kernel) │
+  │ PGD[257]                                        (kernel) │
+  │  ...                                                     │
+  │ PGD[511]  covers 255.5TB – top                  (kernel) │
+  └──────────────────────────────────────────────────────────┘
 ```
+
+### x86_64 kernel-half layout (4-level)
+
+```
+  Address (start)            Region
+  ─────────────────────────  ───────────────────────────────────
+  0xFFFF_8880_0000_0000      direct map of all physical memory
+  0xFFFF_C900_0000_0000      vmalloc / ioremap area
+  0xFFFF_EA00_0000_0000      virtual memory map (vmemmap)
+  0xFFFF_EC00_0000_0000      KASAN shadow memory
+  0xFFFF_FE00_0000_0000      cpu_entry_area mapping
+  0xFFFF_FFFF_8000_0000      kernel text / data image (.text, .data, .bss)
+  0xFFFF_FFFF_A000_0000      modules area
+  0xFFFF_FFFF_FF00_0000      fixmap / percpu / vsyscall
+```
+
+Authoritative table: `Documentation/x86/x86_64/mm.rst`.
 
 ---
 
@@ -154,6 +206,42 @@ Fix — KPTI (Kernel Page Table Isolation):
 
   Cost: ~5–30% performance regression on syscall-heavy workloads
   Benefit: kernel memory no longer speculatively accessible
+```
+
+### x86_64 KPTI dual-PGD layout
+
+```
+Each mm allocates TWO 4 KB PGD pages back-to-back (order-1 allocation):
+
+  mm->pgd ─→ ┌──────────────────────────────┐  ← page 0  (kernel PGD)
+             │  entries 0..255   (user)     │  ← process's user mappings
+             │  entries 256..511 (kernel)   │  ← FULL kernel half
+             └──────────────────────────────┘
+             ┌──────────────────────────────┐  ← page 1  (user PGD)
+             │  entries 0..255   (user)     │  ← same user mappings, mirrored
+             │  entries 256..511 (kernel)   │  ← ONLY entry trampoline,
+             │                              │    IDT, SYSCALL stub,cpu_entry_area
+             └──────────────────────────────┘
+
+The two PGDs sit at addresses differing by exactly one bit: bit 12 (= PAGE_SIZE).
+Helper: kernel_to_user_pgdp(p) = (pgd_t *)((unsigned long)p | (1 << 12)).
+```
+
+```
+CR3 layout under KPTI (+ PCID):
+
+  ┌────────────────────────────────────────────┐
+  │ bits 63–12 : physical address of PGD page  │
+  │ bit  12    : 0 = kernel PGD, 1 = user PGD  │ ← KPTI switch bit
+  │ bits 11– 0 : PCID (Process Context ID)     │
+  └────────────────────────────────────────────┘
+
+Entry/exit trampoline (arch/x86/entry/entry_64.S):
+  syscall entry  : AND CR3, ~(1 << 12)  → kernel PGD
+  return to user : OR  CR3,  (1 << 12)  → user PGD
+
+One bit flip = page-table swap. No table lookup needed.
+PCID lets the swap skip the TLB flush.
 ```
 
 ---

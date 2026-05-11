@@ -22,7 +22,7 @@ tags:
 > "Nice to meet you. My name is Jacky, and I’ve been in the **software industry** for nearly a decade. I **initially** started as a Backend and DevOps engineer, where I developed APIs and managed VM and server resources **on a daily basis**.
 > 
 > When I joined Trend Micro, my focus shifted toward **low-level development** in C and C++. I spent time with the ERS team working on email protection before moving to the Orca team. There, I specialized in developing **Linux kernel modules and eBPF programs**.
-> 
+
 > Most recently, I’ve been building a **Game Boy emulator** as a personal project. It’s been a fantastic way to deepen my understanding of **computer architecture**, specifically in areas like **instruction decoding, memory banking, and interrupt handling**."
 
 
