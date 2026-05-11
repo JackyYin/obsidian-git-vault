@@ -74,7 +74,10 @@ RISC-V Sv39 (3-level) address space:
   │  ...                          (kernel)   │   │ 256 kernel
   │ PGD[511] covers 511GB – 512GB (kernel)   │◀──┘ PGD entries
   └──────────────────────────────────────────┘
+```
 
+
+```
 64-bit x86 (Sv48 / 4-level) address space:
   User space:   0x0000000000000000 – 0x00007FFFFFFFFFFF  = 128TB
   Kernel space: 0xFFFF800000000000 – 0xFFFFFFFFFFFFFFFF  = 128TB
