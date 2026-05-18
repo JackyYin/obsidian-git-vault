@@ -14,12 +14,12 @@ tags:
 | ASPEED       | 0    |                       |                                      |
 | RealTek      | 0    |                       |                  v                   |
 | MediaTek     | 0    |                       |                  v                   |
-| TSMC         | 0    |                       |                  v                   |
+| TSMC         | 0.5  |                       |                  v                   |
 | Novatek (聯詠) | 0.5  |                       |                  v                   |
-| Sifive       | 0.5  |           v           |                  v                   |
+| SiFive       | 0.5  |           v           |                  v                   |
 | ROKU         | 0.5  |                       |                                      |
 | Qualcomm     | 0.5  |                       |                                      |
-| Ubiquiti     | 1    |                       |                                      |
+| Ubiquiti     | 0.5  |                       |                                      |
 | Micron       | 1    |                       |                                      |
 | Ambarella    | 1.5  |                       |      104 [[Resume - v1]] (4/17)      |
 | KLA          | 2    |                       |                                      |
@@ -52,7 +52,6 @@ tags:
 ### Coding interview - 1 (中文)
 
 #### 情境題
-
 設計一個系統: 假設今天有一個裝置有註冊 ISR, 在 ISR 觸發的時候，我們會透過給定的 API 拿到溫度資料，假設此時我們讓其他使用者可以透過一個 `register()` function 來註冊，這些註冊的使用者會在 ISR 發生的時候，透過註冊的 callback 來被通知並拿到溫度資料。
 
 #### Feedback
@@ -75,9 +74,8 @@ tags:
 
 
 ### Coding interview -2
-
 ### Coding interview -3
-
+- 
 - Priority Queue 也有考過
 
 ---
@@ -121,6 +119,7 @@ tags:
 	- 領導能力
 - 你對這個職務的了解？ 知道要做什麼嗎？
 - 可以接受輪班嗎？
+
 
 ### HR Interview
 
