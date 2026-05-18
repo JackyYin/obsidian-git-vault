@@ -36,18 +36,18 @@ tags:
 
 # Google
 
-| PHASE |                                                     |
-| ----- | --------------------------------------------------- |
-| 0     | HR phone call (4/16)                                |
-| 1     | sent resume by Google Career [[Resume - v2]] (4/24) |
-| 2     | HR phone call (4/29)                                |
-| 3     | coding interview (5/11)                             |
-| 4     | HR phone call (5/13)                                |
-| 5     | Behavior Interview<br>Googleness & Leardership      |
-| 6     | coding interview                                    |
-| 7     | coding interview                                    |
-|       |                                                     |
-|       |                                                     |
+| PHASE |                                                       |
+| ----- | ----------------------------------------------------- |
+| 0     | HR phone call (4/16)                                  |
+| 1     | sent resume by Google Career [[Resume - v2]] (4/24)   |
+| 2     | HR phone call (4/29)                                  |
+| 3     | coding interview (5/11)                               |
+| 4     | HR phone call (5/13)                                  |
+| 5     | Behavior Interview (5/18)<br>Googleness & Leardership |
+| 6     | coding interview                                      |
+| 7     | coding interview                                      |
+|       |                                                       |
+|       |                                                       |
 
 ### Coding interview - 1 (中文)
 
@@ -58,13 +58,20 @@ tags:
 #### Feedback
  >  面試表現挺好，performance rating 都挺好，對 library 都很熟悉，對 Linux Kernel 很熟悉
 
+#### Takeaways
+- ISR 裡面拿不到 current (task_struct), 所以設計用 current 當作 key 的方式時要考慮 context 是否在 ISR 裡面
+- 可以思考如果不用 current 當 key, 改用一個 atomic variable, 這樣每次 `register()` 的時候都會拿到一個 unique 的 ID ?
+
 
 ###  Behavior (中文)
 
-- 處理 Ambiguity 的能力，怎麼自己摸索並解決問題
-- 之前工作有沒有解決過團隊衝突
-- 怎麼跟 cross-functions 的人合作
-- 項目比較緊急的時候怎麼安排 priority
+- 面對工作上有比較 ambiguous 的任務要怎麼處理？
+- 遇到一個很緊急的任務，但是你知道開發時間來不及，怎麼辦？
+- 假設有另外一個 team 是開發跟你的team一模一樣的功能
+	- 你會怎麼去跟對方取的聯絡？
+	- 取得聯絡之後你想得到什麼訊息？
+	- 你會想要去阻止這件事情發生嗎？
+- 假設專案中有4個成員，大家做的份量是一樣的，但是有某一個成員他在 presentation 的時候把功勞都說成他自己的要怎麼辦？
 
 
 ### Coding interview -2
@@ -91,19 +98,19 @@ tags:
 
 # TSMC
 
-| PHASE |                                                    |
-| ----- | -------------------------------------------------- |
-| 0     | sent resume by TSMC website [[Resume - v1]] (4/22) |
-| 1     | 收到面試邀約 (4/27)                                      |
-| 2     | HackerRank (5/4)                                   |
-| 3     | Manager interview (5/5)                            |
-| 4     | HR interview (5/13)                                |
-| 5     | onsite interview (5/15)                            |
-|       |                                                    |
+| PHASE |                                                               |
+| ----- | ------------------------------------------------------------- |
+| 0     | sent resume by TSMC website [[Resume - v1]] (4/22)            |
+| 1     | 收到面試邀約 (4/27)                                                 |
+| 2     | HackerRank (5/4)                                              |
+| 3     | Manager interview (5/5)                                       |
+| 4     | HR interview (5/13)                                           |
+| 5     | onsite testing (5/15)<br>- English test<br>- Personality test |
+|       |                                                               |
 
 ---
 
-### HR Interview
+### Manager Interview
 
 - 對於主管的領導風格，有什麼喜歡和不喜歡的地方
 - 對這份工作的期待？
@@ -112,20 +119,18 @@ tags:
 - 對自己3-5年後的期待？
 	- 技術
 	- 領導能力
-- 為什麼選擇台積？
-	- 看好公司發展
-	- 薪資
 - 你對這個職務的了解？ 知道要做什麼嗎？
+- 可以接受輪班嗎？
+
+### HR Interview
+
+- 有沒有曾經有過自己不如別人的感覺？
 - 過去有沒有遇過什麼挫折？ 怎麼解決？
 	- 挫折來源於對自身認知和現實的落差
 		- 1. 提升自己實力
 		- 2. 自己的評價要和現實相符
-- 如果同時接到三個急件，時間又很緊，你會怎麼處理？
-	- priority
-	- dead line
-	- context switch
-- 同事不配合你怎麼辦？
-- 
+- 如果發現同事偷帶手機會怎麼處理？
+- 可以接受輪班嗎？
 
 ---
 
